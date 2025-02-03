@@ -1,0 +1,41 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LPlayer = Players.LocalPlayer 
+local PlrGui = LPlayer.PlayerGui 
+
+local InterfaceFrame = PlrGui.Interface
+local LobbyFrame = InterfaceFrame.Lobby 
+local AbilitiesFrame = LobbyFrame.Abilities 
+local TopPanelFrame = AbilitiesFrame.TopPanel 
+local AbilityFrameData = TopPanelFrame.DisplayName
+
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Knit = Packages:WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit")
+local AbilityService = Knit:WaitForChild("Services"):WaitForChild("AbilityService")
+local Roll = AbilityService:WaitForChild("RF"):WaitForChild("Roll")
+
+local function Notify(Message)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Ability Roll";
+        Text = Message;
+        Duration = 5;
+    })
+end
+
+local LastAbility = AbilityFrameData.Text  
+
+while _G.IsSpinning do
+    local args = { false }
+    Roll:InvokeServer(unpack(args))
+    task.wait(_G.SpinDelay)
+
+    local NewAbility = AbilityFrameData.Text
+    if NewAbility ~= LastAbility then
+        if table.find(_G.WantedAbilities, NewAbility) then
+            Notify("Found wanted ability: " .. NewAbility)
+            _G.IsSpinning = false
+            break
+        end
+        LastAbility = NewAbility
+    end
+end
